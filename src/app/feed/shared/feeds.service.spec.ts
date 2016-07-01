@@ -5,16 +5,13 @@ import {
   expect,
   it,
   fakeAsync,
-  flushMicrotasks,
   tick
 } from "@angular/core/testing";
 
 import { FeedsService } from "./feeds.service";
 import { Feed } from "./feed.model";
 
-declare const jasmine;
 declare const spyOn;
-declare const Promise;
 
 describe("Service: FeedsService", () => {
 
@@ -29,7 +26,7 @@ describe("Service: FeedsService", () => {
   });
 
 
-  describe("#find", () => {
+  describe("find", () => {
     it("should return null when not feed added", () => {
       expect(this.feeds.find(1)).toBe(null);
     });
@@ -52,7 +49,7 @@ describe("Service: FeedsService", () => {
 
   });
 
-  describe("#findMain", () => {
+  describe("findMain", () => {
     it("should return null when not feed added", () => {
       expect(this.feeds.findMain()).toBe(null);
     });
@@ -74,8 +71,8 @@ describe("Service: FeedsService", () => {
     });
   });
 
-  describe("#allFeeds",  () => {
-    it("should return an empty array when no feeds present", () => {
+  describe("allFeeds",  () => {
+    it("should return and empty array when not feeds added", () => {
       expect(this.feeds.allFeeds().length).toBe(0);
     });
 
@@ -95,7 +92,7 @@ describe("Service: FeedsService", () => {
 
   });
 
-  describe("#publisherFeeds",  () => {
+  describe("publisherFeeds",  () => {
     it("should return an empty array when not feeds added", () => {
       expect(this.feeds.publisherFeeds().length).toBe(0);
     });
@@ -128,7 +125,7 @@ describe("Service: FeedsService", () => {
 
   });
 
-  describe("#localScreenFeeds",  () => {
+  describe("localScreenFeeds",  () => {
     it("should return an empty array when not feeds added", () => {
       expect(this.feeds.localScreenFeeds().length).toBe(0);
     });
@@ -161,10 +158,23 @@ describe("Service: FeedsService", () => {
 
   });
 
-  describe("#speakingFeed",  () => {
+  describe("speakingFeed",  () => {
     it("should return undefined when not feeds added", () => {
       expect(this.feeds.speakingFeed()).not.toBeDefined();
     });
+
+    it("should call getSpeaking method in feeds", () => {
+      let feed1: Feed = new Feed();
+      feed1.setAttrs({id: 1});
+      this.feeds.add(feed1);
+      spyOn(feed1, "getSpeaking");
+
+      this.feeds.speakingFeed();
+
+      expect(feed1.getSpeaking).toHaveBeenCalled();
+    });
+
+
 
     it("should return undefined when not speaking feed", () => {
       let feed1: Feed = new Feed();
@@ -178,6 +188,7 @@ describe("Service: FeedsService", () => {
 
       expect(this.feeds.speakingFeed()).not.toBeDefined();
     });
+
 
     it("should an array with all speaking feeds", () => {
       let feed1: Feed = new Feed();
@@ -198,78 +209,36 @@ describe("Service: FeedsService", () => {
 
   });
 
-  describe("#waitFor",  () => {
-    beforeEach(() => {
+  describe("waitFor",  () => {
+    it("should call feeds.find with passed id", () => {
+      spyOn(this.feeds, "find");
+
+      this.feeds.waitFor(1);
+
+      expect(this.feeds.find).toHaveBeenCalled();
+    });
+
+    it("should call feeds.find attemps + 1 times", <any>fakeAsync((): void => {
       spyOn(this.feeds, "find").and.returnValue(null);
-      this.feed = new Feed();
-      this.feed.setAttrs({id: 1});
-    });
 
-    it("should return a promise that resolve with asked feed", <any>fakeAsync((): void => {
-      let response: Promise<any> = this.feeds.waitFor(1, 3, 10);
+      this.feeds.waitFor(1, 5, 10);
 
-      /*
-       * Note: I don't know why but if I run `tick(20)` fails and run `tick(10)`
-       * twice works. So for each interval cycle is necessary run one `tick`.
-       */
-      // 2 interval cycles (20ms in total)
       tick(10);
       tick(10);
-      (<any>this.feeds.find).and.returnValue(this.feed);
-      tick(10); // another interval cycle
-
-      expect(this.feeds.find.calls.count()).toBe(4);
-
-      flushMicrotasks(); // resolve promises
-
-      response.then((feed) => {
-        expect(feed).toBe(this.feed);
+      tick(10);
+      tick(10);
+      (<any>this.feeds.find).and.callFake((): Feed => {
+        let feed: Feed = new Feed();
+        feed.setAttrs({id: 1});
+        return feed;
       });
+      tick(10);
+
+      expect((<any>this.feeds.find).calls.count()).toBe(6);
     }));
 
-    it("should return a promise rejected when feed not found", <any>fakeAsync((): void => {
-      let rejectHandler: any = jasmine.createSpy('reject');
-      this.feeds.waitFor(1, 3).catch(rejectHandler);
 
-      // 3 interval cycles (with default timeout value)
-      tick(1000);
-      tick(1000);
-      tick(1000);
 
-      flushMicrotasks(); // resolve promises
-
-      expect(rejectHandler).toHaveBeenCalled();
-    }));
-
-    it("should return a promise that resolve with the asked feed even if it means not to wait", <any>fakeAsync((): void => {
-      this.feeds.find.and.returnValue(this.feed);
-      let response: Promise<any> = this.feeds.waitFor(1);
-
-      flushMicrotasks(); // resolve promises
-
-      response.then((feed) => {
-        expect(feed).toBe(this.feed);
-      });
-
-    }));
   });
 
-  describe("#destroy", () => {
-    it("should delete the feed from the feeds list", () => {
-      this.feeds.add(this.feed);
-      expect(this.feeds.find(1)).toBe(this.feed);
-
-      this.feeds.destroy(1);
-      expect(this.feeds.find(1)).toBe(null);
-    });
-
-    it("should delete the feed if it is main", () => {
-      this.feeds.add(this.feed, {main: true});
-      expect(this.feeds.findMain()).toBe(this.feed);
-
-      this.feeds.destroy(1);
-      expect(this.feeds.findMain()).toBe(null);
-    });
-
-  });
 });

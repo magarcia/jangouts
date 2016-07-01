@@ -104,7 +104,6 @@ export class FeedConnection {
       media.data = false;
     }
 
-    // [TODO] - De-anonymize the callbacks a tests it
     this.pluginHandle.createOffer({
       media: media,
       success: (jsep: any): void => {
@@ -128,8 +127,6 @@ export class FeedConnection {
    * to a feed from the janus server.
    */
   public subscribe(jsepVal: any): void {
-
-    // [TODO] - De-anonymize the callbacks a tests it
     this.pluginHandle.createAnswer({
       jsep: jsepVal,
       media: {
