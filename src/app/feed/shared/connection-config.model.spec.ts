@@ -8,8 +8,8 @@ import {
 
 import { ConnectionConfig, IWanted } from "./connection-config.model";
 
-declare const jasmine;
-declare const spyOn;
+declare const jasmine: any;
+declare const spyOn: any;
 
 describe("Service: ConnectionConfig", () => {
 
@@ -30,7 +30,7 @@ describe("Service: ConnectionConfig", () => {
       audio: true,
       video: true,
     };
-    let cconfig = new ConnectionConfig(
+    let cconfig: ConnectionConfig = new ConnectionConfig(
       this.pluginHandle,
       config,
       {},
