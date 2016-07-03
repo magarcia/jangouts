@@ -8,8 +8,8 @@ import {
 
 import { ConnectionConfig, IWanted } from "./connection-config.model";
 
-declare const jasmine;
-declare const spyOn;
+declare const jasmine: any;
+declare const spyOn: any;
 
 describe("Service: ConnectionConfig", () => {
 
@@ -31,7 +31,15 @@ describe("Service: ConnectionConfig", () => {
   });
 
   it("should call pluginHandle.send on create", () => {
+<<<<<<< ceac6289527afac717ba0855cae60dc59a71e413
     let cconfig = new ConnectionConfig(
+=======
+    let config: IWanted = {
+      audio: true,
+      video: true,
+    };
+    let cconfig: ConnectionConfig = new ConnectionConfig(
+>>>>>>> Fix some lint errors
       this.pluginHandle,
       this.config,
       {},
