@@ -254,13 +254,13 @@ describe("Service: Feed", () => {
       expect(feed.isConnected()).toBe(false);
     });
 
-    it("should call connection destroy", () => {
-      let connection: any = {
-        destroy: jasmine.createSpy("connection.destroy")
-      };
-      let feed: Feed = new Feed();
-      feed.setAttrs({
-        connection: connection
+    it("should call after callback", () => {
+      this.feed.isPublisher = true;
+      this.feed.dataChannel = jasmine.createSpyObj("dataChannel", ["sendStatus"]);
+      let options: any = jasmine.createSpyObj("options", ["after"]);
+      this.feed.connection = jasmine.createSpyObj("connection", ["setConfig"]);
+      this.feed.connection.setConfig.and.callFake((opt) => {
+        opt.ok();
       });
 
       feed.disconnect();
