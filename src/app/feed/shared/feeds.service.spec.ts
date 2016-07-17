@@ -12,9 +12,9 @@ import {
 import { FeedsService } from "./feeds.service";
 import { Feed } from "./feed.model";
 
-declare const jasmine;
-declare const spyOn;
-declare const Promise;
+declare const jasmine: any;
+declare const spyOn: any;
+declare const Promise: any;
 
 describe("Service: FeedsService", () => {
 
@@ -228,7 +228,7 @@ describe("Service: FeedsService", () => {
     }));
 
     it("should return a promise rejected when feed not found", <any>fakeAsync((): void => {
-      let rejectHandler: any = jasmine.createSpy('reject');
+      let rejectHandler: any = jasmine.createSpy("reject");
       this.feeds.waitFor(1, 3).catch(rejectHandler);
 
       // 3 interval cycles (with default timeout value)
