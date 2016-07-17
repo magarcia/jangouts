@@ -13,12 +13,6 @@ declare const spyOn: any;
 
 describe("Service: Feed", () => {
 
-  beforeEachProviders(() => {
-    return [
-      {provide: Feed, useClass: Feed}
-    ];
-  });
-
   beforeEach(() => {
   });
 
